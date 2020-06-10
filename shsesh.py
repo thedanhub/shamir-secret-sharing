@@ -99,16 +99,15 @@ class ShSeSh:
     def calculate_b(self, x, x_values):
         acc = 1
         for element in x_values:
-            acc = acc * element
-            if (
-                    element - x != 0):  # ignore the case when we are using x, we need to focus on all of the other values only
-                if (element - x >= 0):
+            if element != x:  # do not multiply the current x in the formula
+                acc = acc * element
+            if element - x != 0:  # ignore the case when we are using x, we need to focus on all of the other values only
+                if element - x >= 0:
                     inverse = self.modinv(element - x, self.p)
                 else:
                     inverse = self.modinv(self.p - abs(element - x),
                                           self.p)  # https://math.stackexchange.com/questions/355066/find-the-inverse-modulo-of-a-number-got-a-negative-result
                 acc = acc * inverse
-        acc = acc / x  # we need to multiply all the values but the current one. Because we originally multiplied times x too, we divide by x
         return acc % self.p
 
     '''
@@ -129,14 +128,20 @@ class ShSeSh:
             return k % self.p
 
 
+
+
 #x = ShSeSh(13, 17, 5, 3)
 #x = ShSeSh(1234, 1613, 6, 3)
 x = ShSeSh(1234, 31847, 10, 5)
-print("x = " + str(x.choose_x()))
-print("a = " + str(x.choose_a()))
-print("y = " + str(x.generate_shares()))
+#print("x = " + str(x.choose_x()))
+#print("a = " + str(x.choose_a()))
+#print("y = " + str(x.generate_shares()))
 #print(x.reconstruct_key([1, 3, 5], [8, 10, 11]))
+#print(x.reconstruct_key([1, 2, 3], [1494, 329, 965]))
+#print(x.modinv(76, 31847))
+#print(x.calculate_b(413, [413, 432, 451, 470, 489]))
 print(x.reconstruct_key([413, 432, 451, 470, 489], [25439, 14847, 24780, 5910, 12734]))
+print(x.reconstruct_key([584, 432, 451, 470, 489], [21462, 14847, 24780, 5910, 12734]))
 
 
 
