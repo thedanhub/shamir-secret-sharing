@@ -5,6 +5,7 @@ https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing
 
 import secrets
 import numpy as np
+import sympy
 
 
 class ShSeSh:
@@ -16,10 +17,14 @@ class ShSeSh:
     '''
 
     def __init__(self, k, p, w, t):
-        self.k = k
-        self.p = p
-        self.w = w
-        self.t = t
+        if not(sympy.isprime(p)):
+            raise ValueError('p is not prime')
+        else:
+            self.k = k
+            self.p = p
+            self.w = w
+            self.t = t
+
 
     '''
         SHARES GENERATION
