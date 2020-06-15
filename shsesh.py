@@ -25,8 +25,6 @@ class SSS:
             self.w = w
             self.t = t
 
-            self.choose_a()
-
     '''
         SHARES GENERATION
     '''
@@ -65,6 +63,7 @@ class SSS:
 
     def generate_shares(self):
         y = []
+        self.choose_a()
         for idx, element in enumerate(range(0, self.w)):
             ax = np.poly1d(self.a + [self.k])  # ax is the polynomial we create before computing y_i
             y.append(ax(self.x[idx]) % self.p)  # evaluate the polynomial to generate y_i values
