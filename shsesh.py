@@ -141,14 +141,20 @@ sss = SSS(13, 17, 5, 3)
 print("x = " + str(sss.choose_x()))
 print("y = " + str(sss.generate_shares()))
 
+# manual test
 print("The key is " + str(sss.reconstruct_key([1, 3, 5], [8, 10, 11]))) # must return 13
 
 sss = SSS(1234, 1613, 6, 3)
 print("x = " + str(sss.choose_x()))
 print("y = " + str(sss.generate_shares()))
 
+# manual test
 print("The key is " + str(sss.reconstruct_key([1, 2, 3], [1494, 329, 965])))  # must return 1234
 
 sss = SSS(1234, 31847, 10, 5)
+# manual test
 print(sss.reconstruct_key([413, 432, 451, 470, 489], [25439, 14847, 24780, 5910, 12734]))
 print(sss.reconstruct_key([584, 432, 451, 470, 489], [21462, 14847, 24780, 5910, 12734]))
+print(sss.reconstruct_key([584, 413, 565, 546, 489], [21462, 25439, 20806, 28578, 12734]))
+print(sss.reconstruct_key([489, 565, 451, 470, 527], [12734, 20806, 24780, 5910, 12555]))
+print(sss.reconstruct_key([508, 432, 584, 470, 489], [12492, 14847, 21462, 5910, 12734]))
