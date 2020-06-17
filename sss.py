@@ -149,7 +149,7 @@ print("y = " + str(sss.generate_shares()))
 # manual test
 print("The key is " + str(sss.reconstruct_key([1, 2, 3], [1494, 329, 965])))  # must return 1234
 
-sss = SSS(30000, 31847, 10, 5)
+sss = SSS(31318, 31847, 10, 5)
 print("x = " + str(sss.choose_x()))
 print("y = " + str(sss.generate_shares()))
 # manual test
