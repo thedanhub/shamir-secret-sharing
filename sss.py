@@ -100,6 +100,9 @@ class SSS:
     '''
         calculate_b is needed to reconstruct the key from the shares
         Part of the Lagrange interpolation formula
+        
+        This is the simplified version that we can use when we want to reconstruct the key
+        (since x=0 in this case)
     '''
 
     def calculate_b(self, x, x_values):
@@ -107,6 +110,27 @@ class SSS:
         for element in x_values:
             if element != x:  # do not multiply the current x in the formula
                 acc = acc * element
+            if element - x != 0:  # ignore the case when we are using x, we need to focus on all of the other values only
+                if element - x >= 0:
+                    inverse = self.modinv(element - x, self.p)
+                else:
+                    inverse = self.modinv(self.p - abs(element - x),
+                                          self.p)  # https://math.stackexchange.com/questions/355066/find-the-inverse-modulo-of-a-number-got-a-negative-result
+                acc = acc * inverse
+        return acc % self.p
+
+    '''
+        calculate_b_full is the full Lagrange interpolation formula
+        
+        This is the formula we need when we want to calculate the share for a specific x != 0
+        In this case, since x is not zero, we need to use the full formula
+    '''
+
+    def calculate_b_full(self, root, x, x_values):
+        acc = 1
+        for element in x_values:
+            if element != x:  # do not multiply the current x in the formula
+                acc = acc * (root-element)
             if element - x != 0:  # ignore the case when we are using x, we need to focus on all of the other values only
                 if element - x >= 0:
                     inverse = self.modinv(element - x, self.p)
@@ -133,6 +157,14 @@ class SSS:
                 k = k + b[index] * y[index]
             return k % self.p
 
+    def calculate_y(self, x, x_values, y_values):
+        b = []
+        y = 0
+        for index in range(len(y_values)):
+            b.append(self.calculate_b_full(x, x_values[index], x_values))
+            y = y + b[index] * y_values[index]
+        return y % self.p
+
 
 '''
     Generate shares from a key
@@ -158,3 +190,13 @@ print(sss.reconstruct_key([584, 432, 451, 470, 489], [21462, 14847, 24780, 5910,
 print(sss.reconstruct_key([584, 413, 565, 546, 489], [21462, 25439, 20806, 28578, 12734]))
 print(sss.reconstruct_key([489, 565, 451, 470, 527], [12734, 20806, 24780, 5910, 12555]))
 print(sss.reconstruct_key([508, 432, 584, 470, 489], [12492, 14847, 21462, 5910, 12734]))
+
+sss = SSS(13, 17, 5, 3)
+print("x = " + str(sss.choose_x()))
+print("y = " + str(sss.generate_shares()))
+# manual test
+print("The key is " + str(sss.reconstruct_key([1, 3, 5], [8, 10, 11])))  # must return 13
+
+# Calculate the share for x=3
+print(sss.calculate_y(3, [0,1,5], [13, 8, 11]))
+
