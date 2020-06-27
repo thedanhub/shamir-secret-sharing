@@ -174,6 +174,10 @@ print("x = " + str(sss.choose_x()))
 print("y = " + str(sss.generate_shares()))
 # manual test
 print("The key is " + str(sss.reconstruct_key([1, 3, 5], [8, 10, 11])))  # must return 13
+# Calculate the share for different x
+print("The share for x=1 is " + str(sss.calculate_y(1, [0,3,5], [sss.k, 10, 11])))
+print("The share for x=3 is " + str(sss.calculate_y(3, [0,1,5], [sss.k, 8, 11])))
+print("The share for x=5 is " + str(sss.calculate_y(5, [0,1,3], [sss.k, 8, 10])))
 
 sss = SSS(1234, 1613, 6, 3)
 print("x = " + str(sss.choose_x()))
@@ -190,13 +194,4 @@ print(sss.reconstruct_key([584, 432, 451, 470, 489], [21462, 14847, 24780, 5910,
 print(sss.reconstruct_key([584, 413, 565, 546, 489], [21462, 25439, 20806, 28578, 12734]))
 print(sss.reconstruct_key([489, 565, 451, 470, 527], [12734, 20806, 24780, 5910, 12555]))
 print(sss.reconstruct_key([508, 432, 584, 470, 489], [12492, 14847, 21462, 5910, 12734]))
-
-sss = SSS(13, 17, 5, 3)
-print("x = " + str(sss.choose_x()))
-print("y = " + str(sss.generate_shares()))
-# manual test
-print("The key is " + str(sss.reconstruct_key([1, 3, 5], [8, 10, 11])))  # must return 13
-
-# Calculate the share for x=3
-print(sss.calculate_y(3, [0,1,5], [13, 8, 11]))
 
