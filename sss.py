@@ -6,6 +6,7 @@ https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing
 import secrets
 import numpy as np
 import sympy
+import itertools
 
 
 class SSS:
@@ -110,7 +111,6 @@ class SSS:
         for element in x_values:
             if element != x:  # do not multiply the current x in the formula
                 acc = acc * element
-            if element - x != 0:  # ignore the case when we are using x, we need to focus on all of the other values only
                 if element - x >= 0:
                     inverse = self.modinv(element - x, self.p)
                 else:
@@ -131,7 +131,6 @@ class SSS:
         for element in x_values:
             if element != x:  # do not multiply the current x in the formula
                 acc = acc * (root-element)
-            if element - x != 0:  # ignore the case when we are using x, we need to focus on all of the other values only
                 if element - x >= 0:
                     inverse = self.modinv(element - x, self.p)
                 else:
@@ -164,6 +163,43 @@ class SSS:
             b.append(self.calculate_b_full(x, x_values[index], x_values))
             y = y + b[index] * y_values[index]
         return y % self.p
+
+    def validate_shares(self, x_values, y_values):
+        comb_x = list(itertools.combinations(x_values, self.t))
+        comb_y = list(itertools.combinations(y_values, self.t))
+        key = sss.reconstruct_key(comb_x[0], comb_y[0])
+        for index, element in enumerate(comb_x):
+            next_key = sss.reconstruct_key(comb_x[index], comb_y[index])
+            if (not(next_key == key)):
+                return False
+                exit()
+        return True
+
+    def find_defective_share(self, x_values, y_values):
+        comb_x = list(itertools.combinations(x_values, self.t))
+        comb_y = list(itertools.combinations(y_values, self.t))
+        array_of_keys = []
+        for index, element in enumerate(comb_x):
+            key = sss.reconstruct_key(comb_x[index], comb_y[index])
+            array_of_keys.append([comb_x[index], key])
+
+        # Count how many times a key appears
+        # The one with most occurrences is likely the correct key
+        array_count = []
+        for element in array_of_keys:
+            array_count.append([element[1], sum(x.count(element[1]) for x in array_of_keys)])
+
+        # Sort the array to find the most common key
+        sorted_array = sorted(array_count, key=lambda x: x[1], reverse=True)
+        likely_key = sorted_array[0][0]
+
+        # Find the defective share, i.e. the intersection of every share returning the wrong result
+        array_of_x = []
+        for element in array_of_keys:
+            if element[1] != likely_key: # only consider shares with the wrong key
+                array_of_x.append(element[0])
+        result = set(array_of_x[0]).intersection(*array_of_x)
+        return list(result)[0]
 
 
 '''
@@ -202,3 +238,26 @@ print(sss.reconstruct_key([508, 432, 584, 470, 489], [12492, 14847, 21462, 5910,
 print("The share for x=413 is " + str(sss.calculate_y(413, [0, 432, 451, 470, 489], [sss.k, 14847, 24780, 5910, 12734])))
 print("The share for x=584 is " + str(sss.calculate_y(584, [413, 432, 451, 470, 489], [25439, 14847, 24780, 5910, 12734])))
 print("The share for x=508 is " + str(sss.calculate_y(508, [489, 565, 451, 470, 527], [12734, 20806, 24780, 5910, 12555])))
+print("The share for x=0 is " + str(sss.calculate_y(0, [413, 432, 451, 470, 489], [25439, 14847, 24780, 5910, 12734])))
+
+'''
+    Share verification
+'''
+
+sss = SSS(1234, 94875355691, 9, 5)
+x = [11, 22, 33, 44, 55, 66, 77, 88, 99]
+y = [537048626, 89894377870, 65321160237, 18374404957, 24564576435, 87371334299, 60461341922, 10096524973, 81367619987]
+print(sss.reconstruct_key([11, 22, 33, 44, 55],[537048626, 89894377870, 65321160237, 18374404957, 24564576435]))
+print(sss.reconstruct_key([22, 33, 44, 55, 66],[89894377870, 65321160237, 18374404957, 24564576435, 87371334299]))
+print(sss.reconstruct_key([33, 44, 55, 66, 77],[65321160237, 18374404957, 24564576435, 87371334299, 60461341922]))
+print(sss.reconstruct_key([44, 55, 66, 77, 88],[18374404957, 24564576435, 87371334299, 60461341922, 10096524973]))
+print(sss.reconstruct_key([55, 66, 77, 88, 99],[24564576435, 87371334299, 60461341922, 10096524973, 81367619987]))
+print(sss.reconstruct_key([11, 22, 33, 44, 55, 66, 77, 88, 99], [537048626, 89894377870, 65321160237, 18374404957, 24564576435, 87371334299, 60461341922, 10096524973, 81367619987]))
+print(sss.reconstruct_key([22, 33, 44, 55, 66, 77, 88, 99], [89894377870, 65321160237, 18374404957, 24564576435, 87371334299, 60461341922, 10096524973, 81367619987]))
+print(sss.reconstruct_key([11, 22, 33, 44, 55, 66, 77, 88], [537048626, 89894377870, 65321160237, 18374404957, 24564576435, 87371334299, 60461341922, 10096524973]))
+
+if sss.validate_shares(x, y):
+    print("Shares are valid")
+else:
+    print("Shares are not valid")
+    print("The defective share is " + str(sss.find_defective_share([11, 22, 33, 44, 55, 66, 77, 88, 99], [537048626, 89894377870, 65321160237, 18374404957, 24564576435, 87371334299, 60461341922, 10096524973, 81367619987])))
